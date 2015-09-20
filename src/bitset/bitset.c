@@ -79,3 +79,8 @@ u8 bitsetget(BitSet *b, u32 pos)
 
 	return b->bits[element] & (1 << offset);
 }
+
+u32 bitsetsizeof(BitSet *b)
+{
+	return b->size * sizeof(u8) + sizeof(BitSet);
+}

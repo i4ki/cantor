@@ -14,7 +14,7 @@ enum {
 };
 
 typedef struct {
-	u8 *bits;
+	u8 *bits; 
 	u32 size;
 } BitSet;
 
@@ -27,5 +27,6 @@ void bitsetclear(BitSet *);
 void bitsetdbg(BitSet *);
 Error bitsetset(BitSet *, u32);
 u8 bitsetget(BitSet *, u32);
+u32 bitsetsizeof(BitSet *);
 
 #endif
