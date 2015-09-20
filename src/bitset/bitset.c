@@ -65,8 +65,6 @@ Error bitsetset(BitSet *b, u32 pos)
 	element = pos/8;
 	offset = pos % 8;
 
-	printf("element=%d, offset=%d\n", element, offset);
-
 	b->bits[element] |= (1 << offset);
 
 	return ERROK;

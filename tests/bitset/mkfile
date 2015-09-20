@@ -1,6 +1,6 @@
 <../../src/mkhdr
 
-build:
+build:VQ:
 	$CC $CCFLAGS test.c -o test -L ../../src/bitset -lbitset
 
 test: build
