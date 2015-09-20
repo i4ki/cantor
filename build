@@ -1,0 +1,5 @@
+#!/bin/rc
+
+for(p in $DEPS) {
+	cd $p && mk
+}

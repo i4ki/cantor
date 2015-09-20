@@ -1,0 +1,7 @@
+<../../src/mkhdr
+
+build:
+	$CC $CCFLAGS test.c -o test -L ../../src/bitset -lbitset
+
+test: build
+	./test

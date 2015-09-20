@@ -1,0 +1,22 @@
+
+SRC=`{pwd}
+INC=`{echo $SRC | sed 's#cantor/.*#cantor/include#g'}
+CCFLAGS=\
+		-O2 \
+		-Wall \
+		-Werror \
+		-Wno-parentheses \
+		-Wno-missing-braces \
+		-Wno-switch \
+		-Wno-comment \
+		-Wno-sign-compare \
+		-Wno-unknown-pragmas \
+		-Wno-main \
+		-fno-omit-frame-pointer \
+		-fsigned-char \
+		-I$INC
+
+LDFLAGS=
+
+CC=gcc
+AR=ar

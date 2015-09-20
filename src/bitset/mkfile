@@ -1,0 +1,14 @@
+< ../mkhdr
+
+ALL=bitset
+
+all:V: $ALL
+
+LIBOBJS=\
+		bitset.c
+
+bitset.o: $LIBOBJS
+	$CC $CCFLAGS -c $LIBOBJS
+
+bitset: bitset.o
+	$AR rcs libbitset.a bitset.o
