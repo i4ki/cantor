@@ -7,7 +7,10 @@
 #include <stdint.h>
 #include <cantor/cantor.h>
 
-#define BIT(x,n) (((x) >> (n)) & 1)
+#define GETBIT(value, place)		(((value) >> (place)) & 1)
+#define SETBIT(value, place)		((value) | (1 << (place)))
+#define UNSETBIT(value, place)	((value) & (~(1 << (place))))
+#define TOGGLEBIT(value, place)	((value) ^ (1 << (place)))
 
 
 Error bitset_init(BitSet *bset, u32 maxNumber)
@@ -78,7 +81,7 @@ void bitset_dbg(BitSet *b)
 
 	for(i = 0; i < b->size; i++) {
 		for(j = 0; j < 8; j++) {
-			printf("%d", BIT(b->bits[i], j));
+			printf("%d", GETBIT(b->bits[i], j));
 		}
 	}
 
@@ -105,19 +108,19 @@ Error bitset_rangedbg(BitSet *b, u32 start, u32 end)
 
 	// run the first byte isolated for the case when 'start' is in the middle of the first byte
 	for(j = firstoffstart; j < (end - start >= 8) ? 8 : offsetend; j++) {
-		printf("%d", BIT(b->bits[elemstart], j));
+		printf("%d", GETBIT(b->bits[elemstart], j));
 	}
 
 	// run all of inner loops
 	for(i = elemstart + 1; i < elemend; i++) { /* do not run the first neither last iteration */
 		for(j = 0; j < 8; j++) {
-			printf("%d", BIT(b->bits[i], j));
+			printf("%d", GETBIT(b->bits[i], j));
 		}
 	}
 
 	// run the last case for when 'end' is in the middle of last byte
 	for(j = 0; j < offsetend; j++) {
-		printf("%d", BIT(b->bits[elemend], j));
+		printf("%d", GETBIT(b->bits[elemend], j));
 	}
 
 	return ERROK;
@@ -190,11 +193,12 @@ Error bitset_unset(BitSet *b, u32 pos)
 	element = pos/8;
 	offset = pos % 8;
 
-	u8 old = b->bits[element];
-	u8 cleanshift = 8 - offset;
+	// u8 old = b->bits[element];
+	// u8 cleanshift = 8 - offset;
 
 	// OR of left part and right part skiping the 'pos'
-	b->bits[element] = (old >> cleanshift) << cleanshift | (old << offset + 1) >> offset + 1;
+	// b->bits[element] = (old >> cleanshift) << cleanshift | (old << offset + 1) >> offset + 1;
+	b->bits[element] = UNSETBIT(b->bits[element], offset);
 
 	return ERROK;
 }
@@ -211,7 +215,7 @@ u8 bitset_get(BitSet *b, u32 pos)
 	element = pos/8;
 	offset = pos%8;
 
-	return BIT(b->bits[element], offset);
+	return GETBIT(b->bits[element], offset);
 }
 
 u32 bitset_sizeof(BitSet *b)

@@ -69,6 +69,65 @@ u8 testBasicBitSetOneByte()
 		goto cleanup;
 	}
 
+	/* test bit clear */
+	err = bitset_unset(&bset, 0);
+
+	if(err != ERROK) {
+		TERROR("bit unset error: %d\n", err);
+		goto cleanup;
+	}
+
+	v = bitset_get(&bset, 0);
+
+	if(v != 0) {
+		TERROR("Failed to clear bit. Still 1\n");
+		err = 97;
+		goto cleanup;
+	}
+
+	/* test if adjacent bit operation mess each other */
+	err = bitset_set(&bset, 3);
+
+	if(err != ERROK) {
+		TERROR("Failed to set bit 3\n");
+		goto cleanup;
+	}
+
+	err = bitset_set(&bset, 4);
+
+	if(err != ERROK) {
+		TERROR("Failed to set bit 4\n");
+		goto cleanup;
+	}
+
+	err = bitset_set(&bset, 6);
+
+	if(err != ERROK) {
+		TERROR("Failed to set bit 6\n");
+		goto cleanup;
+	}
+
+	/* clear the middle slot */
+	err = bitset_unset(&bset, 5);
+
+	if(err != ERROK) {
+		TERROR("Failed to unset the bit 5\n");
+		goto cleanup;
+	}
+
+	/* test the values */
+	u8 v3 = bitset_get(&bset, 3);
+	u8 v4 = bitset_get(&bset, 4);
+	u8 v5 = bitset_get(&bset, 5);
+	u8 v6 = bitset_get(&bset, 6);
+
+	if(v3 != 1 || v4 != 1 || v5 != 0 || v6 != 1) {
+		TERROR("Some bit field operations is setting wrong bits\n");
+		TERROR("v3=%d, v4=%d, v5=%d, v6=%d\n", v3, v4, v5, v6);
+		err = 95;
+		goto cleanup;
+	}
+
 cleanup:
 	bitset_free(&bset);
 	return err;
