@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <cantor/cantor.h>
 
+#define TERROR(...) fprintf(stderr, __VA_ARGS__)
 typedef struct {
 	u8* name;
 	u8 (*fn)(void);
@@ -17,34 +18,59 @@ u8 testBasicBitSetOneByte()
 	u8 bit = 0;
 	Error err = ERROK;
 
-	err = bitsetinit(&bset, 8);
+	err = bitset_init(&bset, 8);
 
 	if(err != ERROK) {
-		printf("fail: bitset\n");
+		TERROR("fail: bitset\n");
 		return err;
 	}
 
 	if(bset.size != 1)
 	{	
-		printf("fail: bitset (wrong size of bitset. Value: %d)\n", bset.size);
+		TERROR("fail: bitset (wrong size of bitset. Value: %d)\n", bset.size);
+		err = 1;
 		goto cleanup;
 	}
 
 	for(i = 0; i < 8; i++) {
-		bitsetset(&bset, i);
-	}
+		err = bitset_set(&bset, i);
 
-	for(i = 0; i < 8; i++) {
-		bit = bitsetget(&bset, 0);
-
-		if(bit != 1) {
-			printf("fail: bitset (bit %d != 1\n", i);
+		if(err != ERROK) {
 			goto cleanup;
 		}
 	}
 
+	for(i = 0; i < 8; i++) {
+		bit = bitset_get(&bset, i);
+
+		if(bit != 1) {
+			printf("fail: bitset (bit %d != 1\n", bit);
+			bitset_dbg(&bset);
+			err = 1;
+			goto cleanup;
+		}
+	}
+
+	bitset_clear(&bset);
+
+	/* test 1 bit flip */
+	err = bitset_set(&bset, 0);
+
+	if(err != ERROK) {
+		TERROR("Failed to set bit\n");
+		goto cleanup;
+	}
+
+	u8 v = bitset_get(&bset, 0);
+
+	if(v != 1) {
+		TERROR("bit flag %d != %d\n", v, 1);
+		err = 98;
+		goto cleanup;
+	}
+
 cleanup:
-	bitsetfree(&bset);
+	bitset_free(&bset);
 	return err;
 }
 
@@ -55,33 +81,46 @@ u8 testLargeBitSet()
 
 	BitSet bset;
 
-	err = bitsetinit(&bset, n);
+	err = bitset_init(&bset, n);
 
 	if(err != ERROK) {
+		TERROR("Failed to init large bitset\n");
 		return err;
 	}
 
 	/* tests if all bits are zero'ed */
 	for(i = 0; i < n; i++) {
-		u8 v = bitsetget(&bset, i);
+		u8 v = bitset_get(&bset, i);
 
 		if(v != 0) {
-			err = 1;
+			err = 99;
 			goto cleanup;
 		}
 	}
 
 	/* test 1 bit flip */
-	bitsetset(&bset, 0);
-	u8 v = bitsetget(&bset, 0);
+	bitset_set(&bset, 0);
+	u8 v = bitset_get(&bset, 0);
 
 	if(v != 1) {
-		err = 1;
+		TERROR("bit flag %d != %d\n", v, 1);
+		err = 98;
 		goto cleanup;
 	}
 
+	/* test out-of-bounds bit flip */
+	err = bitset_set(&bset, n+1);
+
+	if(err != ERRBOUNDARIES) {
+		fprintf(stderr, "Out of bounds write must fail\n");
+		err = 97;
+		goto cleanup;
+	}
+
+	err = ERROK;
+
 cleanup:	
-	bitsetfree(&bset);
+	bitset_free(&bset);
 	return err;
 }
 
@@ -108,7 +147,7 @@ void main(void)
 
 		if(ret != 0)
 		{
-			printf("fail\n");
+			printf("fail, err code = %ud\n", ret);
 			status = ret;
 		} else {
 			printf("ok\n");

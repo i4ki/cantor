@@ -10,23 +10,30 @@ typedef u8 Error;
 enum {
 	ERROK = 0,
 	ERRALLOC,
-	ERRNILP
+	ERRNILP,
+	ERRBOUNDARIES
 };
 
 typedef struct {
 	u8 *bits; 
 	u32 size;
+	u32 start; /* virtual start */
+	u32 end;  /* virtual end */
 } BitSet;
 
 /**
  * bitsetinit initializes the BitSet structure 
  */
-Error bitsetinit(BitSet *, u32);
-void bitsetfree(BitSet *);
-void bitsetclear(BitSet *);
-void bitsetdbg(BitSet *);
-Error bitsetset(BitSet *, u32);
-u8 bitsetget(BitSet *, u32);
-u32 bitsetsizeof(BitSet *);
+Error bitset_init(BitSet *, u32);
+Error bitset_initrange(BitSet *, u32, u32);
+Error bitset_cprange(BitSet *from, BitSet *to, u32 start, u32 end);
+void bitset_free(BitSet *);
+void bitset_clear(BitSet *);
+void bitset_dbg(BitSet *);
+Error bitset_rangedbg(BitSet *, u32, u32);
+Error bitset_set(BitSet *, u32);
+Error bitset_unset(BitSet *, u32);
+u8 bitset_get(BitSet *, u32);
+u32 bitset_sizeof(BitSet *);
 
 #endif
